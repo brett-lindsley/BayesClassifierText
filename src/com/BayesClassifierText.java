@@ -280,6 +280,64 @@ public class BayesClassifierText {
 		return classificationList;
 	}
 	
+	
+	private List<ClassificationResult> classifyUsingLogs(List<Integer> values) {
+		
+		List<ClassificationResult> classificationList = new LinkedList<>();
+		
+		
+		// Calculate the likelihood for each classification.
+		for (String className : model.getClassCounts().keySet()) {
+			
+			// Initialize likelihood to prior probability of the classification.
+			double x = (double) model.getClassCounts().get(className).intValue() 
+					/ 
+					(double) model.getNumberOfTrainingDocuments();
+			double likelihood = Math.log(x);
+			
+			// Get the attribute list for this classification.
+			List<AtomicInteger> attributeList = model.getWordCountsPerClass().get(className);
+			
+			// Get number of words in this class.
+			int numberOfWordsInClass = model.getTotalWordsPerClass().get(className).intValue();
+						
+			// Get size of vocabulary.
+			int vocabSize = evidence.getAttributeNames().size();
+
+			// Multiply the probability of each attribute.
+			for (int i = 0; i < attributeList.size(); i++) {
+				
+				// Get the word count for this attribute in this class.
+				int wordCount = attributeList.get(i).intValue();
+				
+				// Compute probability with Laplace smoothing.
+				double wordProbabilityGivenClass = (double) (wordCount + 1) 
+						/ 
+						(double) (numberOfWordsInClass + vocabSize);
+								
+				// Add contribution of each attribute probability.
+				likelihood += values.get(i) * Math.log(wordProbabilityGivenClass);
+			}
+			
+			
+			// Add the classification result.
+			ClassificationResult cr = new ClassificationResult();
+			cr.setClassificationName(className);
+			cr.setLikelihood(likelihood);
+			classificationList.add(cr);
+		}
+				
+		// Sort by likelihood.
+		Collections.sort(classificationList, new Comparator<ClassificationResult>() {
+			@Override
+			public int compare(ClassificationResult o1, ClassificationResult o2) {
+				if (o1.getLikelihood() > o2.getLikelihood()) return -1;
+				else return 1;
+			}});
+		
+		return classificationList;
+	}
+	
 	@SuppressWarnings("serial")
 	public static void main(String[] args) {
 		BayesClassifierText bct = new BayesClassifierText();
@@ -297,6 +355,12 @@ public class BayesClassifierText {
 				bct.classify(new LinkedList<Integer>() {{ add(2); add(1); add(2); add(0); add(0); add(1);}});
 		for (ClassificationResult cr : classificationResults) {
 			System.out.println(cr.getClassificationName() + " " + cr.getLikelihood() + " " + cr.getProbability());
+		}
+		
+		List<ClassificationResult> classificationResults1 =
+				bct.classifyUsingLogs(new LinkedList<Integer>() {{ add(2); add(1); add(2); add(0); add(0); add(1);}});
+		for (ClassificationResult cr : classificationResults1) {
+			System.out.println(cr.getClassificationName() + " " + cr.getLikelihood());
 		}
 
 	}
