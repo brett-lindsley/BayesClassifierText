@@ -339,6 +339,7 @@ public class BayesClassifierText {
 	}
 	
 	@SuppressWarnings("serial")
+	// http://suanpalm3.kmutnb.ac.th/teacher/FileDL/choochart82255418560.pdf
 	public static void main(String[] args) {
 		BayesClassifierText bct = new BayesClassifierText();
 		
