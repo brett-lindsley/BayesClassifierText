@@ -355,13 +355,16 @@ public class BayesClassifierText {
 		List<ClassificationResult> classificationResults =
 				bct.classify(new LinkedList<Integer>() {{ add(2); add(1); add(2); add(0); add(0); add(1);}});
 		for (ClassificationResult cr : classificationResults) {
-			System.out.println(cr.getClassificationName() + " " + cr.getLikelihood() + " " + cr.getProbability());
+			System.out.format("%15s Likelihood: %15f, probability: %15f\n",
+					cr.getClassificationName(), cr.getLikelihood(), cr.getProbability());			
 		}
+		
+		System.out.println();
 		
 		List<ClassificationResult> classificationResults1 =
 				bct.classifyUsingLogs(new LinkedList<Integer>() {{ add(2); add(1); add(2); add(0); add(0); add(1);}});
 		for (ClassificationResult cr : classificationResults1) {
-			System.out.println(cr.getClassificationName() + " " + cr.getLikelihood());
+			System.out.format("%15s Likelihood using logs: %15f\n", cr.getClassificationName(), cr.getLikelihood());
 		}
 
 	}
